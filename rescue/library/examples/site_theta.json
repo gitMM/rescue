@@ -1,0 +1,545 @@
+{
+  "id": "site_theta",
+  "title": "Site Theta",
+  "premise": "A xenobiology black site under a pine forest. Specimen 4 has learned the night shift's routines and tonight it leaves.",
+  "design_notes": "Route A (vents and hacking): liquefy, ooze into maintenance, absorb technician Ruiz for the server password, log into the server terminal, open the exhaust duct and ride the supply truck out after turn 18. Route B (disguise): absorb Dr. Ito when she checks the cell, badge out as her, con Officer Hale into opening the checkpoint, crack the security terminal and walk out the perimeter gate. Route C: take the Director's master key and use it on the dock shutter and gate. Guards shoot on sight, the cell incinerator cycles during lockdown, and alarms revoke stolen badges and seal the vents.",
+  "turn_limit": 40,
+  "monster": {
+    "start_room": "cell",
+    "energy": 2,
+    "max_energy": 6
+  },
+  "security": {
+    "max_alarm": 5,
+    "revoke_badges_at": 3,
+    "seal_vents_at": 4,
+    "purge_turns": 3
+  },
+  "rooms": [
+    {
+      "id": "cell",
+      "name": "Containment Cell 4",
+      "zone": 0,
+      "exit": false,
+      "description": "Steel walls, a drain grate and a camera dome."
+    },
+    {
+      "id": "observation",
+      "name": "Observation Gallery",
+      "zone": 0,
+      "exit": false,
+      "description": "One-way glass overlooking the cell."
+    },
+    {
+      "id": "corridor",
+      "name": "Research Corridor",
+      "zone": 1,
+      "exit": false,
+      "description": "The spine of the research level."
+    },
+    {
+      "id": "lab",
+      "name": "Xenobiology Lab",
+      "zone": 1,
+      "exit": false,
+      "description": "Sample fridges and a lab terminal."
+    },
+    {
+      "id": "canteen",
+      "name": "Staff Canteen",
+      "zone": 1,
+      "exit": false,
+      "description": "Vending machines and a ceiling vent."
+    },
+    {
+      "id": "maintenance",
+      "name": "Maintenance Crawlspace",
+      "zone": 1,
+      "exit": false,
+      "description": "Pipes, ducts and the hum of pumps."
+    },
+    {
+      "id": "server_room",
+      "name": "Server Room",
+      "zone": 1,
+      "exit": false,
+      "description": "Racks, cold air and the facility's network core."
+    },
+    {
+      "id": "checkpoint",
+      "name": "Security Checkpoint",
+      "zone": 2,
+      "exit": false,
+      "description": "Scanner arch between research and the outside world."
+    },
+    {
+      "id": "security_office",
+      "name": "Security Office",
+      "zone": 2,
+      "exit": false,
+      "description": "Monitors for every camera in the site."
+    },
+    {
+      "id": "director_office",
+      "name": "Director's Office",
+      "zone": 2,
+      "exit": false,
+      "description": "Leather chair, locked cabinets, a vent above the desk."
+    },
+    {
+      "id": "loading_dock",
+      "name": "Loading Dock",
+      "zone": 3,
+      "exit": false,
+      "description": "Supply trucks come and go through the perimeter gate."
+    },
+    {
+      "id": "outside",
+      "name": "Pine Forest",
+      "zone": 3,
+      "exit": true,
+      "description": "Freedom."
+    }
+  ],
+  "doors": [
+    {
+      "id": "d_cell",
+      "name": "the containment hatch",
+      "a": "cell",
+      "b": "observation",
+      "locked": true,
+      "clearance": 2
+    },
+    {
+      "id": "d_gallery",
+      "name": "the gallery door",
+      "a": "observation",
+      "b": "corridor",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_lab",
+      "name": "the lab door",
+      "a": "corridor",
+      "b": "lab",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_canteen",
+      "name": "the canteen door",
+      "a": "corridor",
+      "b": "canteen",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_maint",
+      "name": "the maintenance hatch",
+      "a": "corridor",
+      "b": "maintenance",
+      "locked": true,
+      "clearance": 1
+    },
+    {
+      "id": "d_server",
+      "name": "the server room door",
+      "a": "corridor",
+      "b": "server_room",
+      "locked": true,
+      "clearance": 3
+    },
+    {
+      "id": "d_checkpoint",
+      "name": "the checkpoint gate",
+      "a": "corridor",
+      "b": "checkpoint",
+      "locked": true,
+      "clearance": 3
+    },
+    {
+      "id": "d_secoffice",
+      "name": "the security office door",
+      "a": "checkpoint",
+      "b": "security_office",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_director",
+      "name": "the director's door",
+      "a": "checkpoint",
+      "b": "director_office",
+      "locked": true,
+      "clearance": 4
+    },
+    {
+      "id": "d_dock",
+      "name": "the dock shutter",
+      "a": "checkpoint",
+      "b": "loading_dock",
+      "locked": true,
+      "clearance": 4
+    },
+    {
+      "id": "d_gate",
+      "name": "the perimeter gate",
+      "a": "loading_dock",
+      "b": "outside",
+      "locked": true,
+      "clearance": 4
+    }
+  ],
+  "vents": [
+    {
+      "id": "v_cell",
+      "name": "the cell drain",
+      "a": "cell",
+      "b": "maintenance",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_server",
+      "name": "the server cooling duct",
+      "a": "maintenance",
+      "b": "server_room",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_canteen",
+      "name": "the canteen vent",
+      "a": "maintenance",
+      "b": "canteen",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_dock",
+      "name": "the exhaust duct",
+      "a": "server_room",
+      "b": "loading_dock",
+      "sealed": true,
+      "sealable": true
+    },
+    {
+      "id": "v_director",
+      "name": "the office air duct",
+      "a": "canteen",
+      "b": "director_office",
+      "sealed": false,
+      "sealable": true
+    }
+  ],
+  "cameras": [
+    {
+      "id": "cam_cell",
+      "name": "the cell camera",
+      "room": "cell"
+    },
+    {
+      "id": "cam_corridor",
+      "name": "the corridor camera",
+      "room": "corridor"
+    },
+    {
+      "id": "cam_checkpoint",
+      "name": "the checkpoint camera",
+      "room": "checkpoint"
+    },
+    {
+      "id": "cam_server",
+      "name": "the server room camera",
+      "room": "server_room"
+    },
+    {
+      "id": "cam_dock",
+      "name": "the dock camera",
+      "room": "loading_dock"
+    }
+  ],
+  "terminals": [
+    {
+      "id": "term_lab",
+      "name": "the lab terminal",
+      "room": "lab",
+      "security": 1,
+      "password": "pw_lab",
+      "alarm_control": false,
+      "controls": [
+        "d_cell",
+        "d_maint",
+        "cam_cell",
+        "cam_corridor"
+      ]
+    },
+    {
+      "id": "term_server",
+      "name": "the network core",
+      "room": "server_room",
+      "security": 3,
+      "password": "pw_server",
+      "alarm_control": true,
+      "controls": [
+        "v_dock",
+        "cam_server",
+        "cam_dock"
+      ]
+    },
+    {
+      "id": "term_security",
+      "name": "the security console",
+      "room": "security_office",
+      "security": 2,
+      "password": "pw_security",
+      "alarm_control": false,
+      "controls": [
+        "d_server",
+        "d_checkpoint",
+        "d_dock",
+        "d_gate",
+        "cam_checkpoint"
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "dr_ito",
+      "name": "Dr. Mina Ito",
+      "role": "lead xenobiologist",
+      "clearance": 2,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "observation",
+        "cell",
+        "observation",
+        "lab",
+        "lab",
+        "corridor"
+      ],
+      "carries": [
+        "card_l2"
+      ],
+      "knows": [
+        "pw_lab"
+      ]
+    },
+    {
+      "id": "tech_ruiz",
+      "name": "Sam Ruiz",
+      "role": "systems technician",
+      "clearance": 3,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "maintenance",
+        "maintenance",
+        "server_room",
+        "server_room",
+        "corridor",
+        "canteen"
+      ],
+      "carries": [],
+      "knows": [
+        "pw_server"
+      ]
+    },
+    {
+      "id": "guard_hale",
+      "name": "Officer Hale",
+      "role": "security officer",
+      "clearance": 3,
+      "armed": true,
+      "phone": false,
+      "patrol": [
+        "corridor",
+        "corridor",
+        "canteen",
+        "corridor",
+        "checkpoint",
+        "checkpoint"
+      ],
+      "carries": [
+        "card_l3"
+      ],
+      "knows": []
+    },
+    {
+      "id": "guard_osei",
+      "name": "Officer Osei",
+      "role": "security officer",
+      "clearance": 3,
+      "armed": true,
+      "phone": false,
+      "patrol": [
+        "checkpoint",
+        "security_office",
+        "security_office",
+        "checkpoint"
+      ],
+      "carries": [],
+      "knows": []
+    },
+    {
+      "id": "director_kane",
+      "name": "Director Kane",
+      "role": "site director",
+      "clearance": 4,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "director_office",
+        "director_office",
+        "director_office",
+        "checkpoint",
+        "security_office",
+        "checkpoint"
+      ],
+      "carries": [],
+      "knows": [
+        "pw_security"
+      ]
+    },
+    {
+      "id": "janitor_bell",
+      "name": "Pat Bell",
+      "role": "night janitor",
+      "clearance": 1,
+      "armed": false,
+      "phone": false,
+      "patrol": [
+        "canteen",
+        "corridor",
+        "observation",
+        "corridor",
+        "maintenance"
+      ],
+      "carries": [
+        "card_l1"
+      ],
+      "knows": []
+    }
+  ],
+  "items": [
+    {
+      "id": "card_l1",
+      "name": "the janitor's keycard",
+      "kind": "keycard",
+      "clearance": 1,
+      "room": null
+    },
+    {
+      "id": "card_l2",
+      "name": "Dr. Ito's lab badge",
+      "kind": "keycard",
+      "clearance": 2,
+      "room": null
+    },
+    {
+      "id": "card_l3",
+      "name": "a security keycard",
+      "kind": "keycard",
+      "clearance": 3,
+      "room": null
+    },
+    {
+      "id": "card_l4",
+      "name": "the Director's master key",
+      "kind": "keycard",
+      "clearance": 4,
+      "room": "director_office"
+    },
+    {
+      "id": "pw_lab",
+      "name": "the lab terminal password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    },
+    {
+      "id": "pw_server",
+      "name": "the network core password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    },
+    {
+      "id": "pw_security",
+      "name": "the security console password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    }
+  ],
+  "vars": [
+    {
+      "name": "truck_arrived",
+      "kind": "bool",
+      "init": false,
+      "min": null,
+      "max": null,
+      "values": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "stow_away",
+      "ability": "liquid",
+      "bind": [],
+      "where": [],
+      "pre": [
+        "monster.loc == loading_dock",
+        "truck_arrived == true",
+        "monster.form == liquid"
+      ],
+      "eff": [
+        "monster.loc = outside"
+      ],
+      "text": "Seep into a crate on the supply truck and ride out through the perimeter gate."
+    }
+  ],
+  "rules": [
+    {
+      "id": "supply_truck",
+      "bind": [],
+      "where": [],
+      "when": [
+        "turn >= 18",
+        "truck_arrived == false"
+      ],
+      "then": [
+        "truck_arrived = true"
+      ],
+      "text": "A supply truck backs into the loading dock."
+    },
+    {
+      "id": "screams",
+      "bind": [],
+      "where": [],
+      "when": [
+        "monster.form == self",
+        "here.witnesses >= 1",
+        "monster.loc != cell"
+      ],
+      "then": [
+        "alarm += 1"
+      ],
+      "text": "A witness screams and hits the panic button."
+    }
+  ],
+  "losses": [
+    {
+      "id": "incinerated",
+      "when": [
+        "monster.loc == cell",
+        "lockdown >= 1"
+      ],
+      "text": "The cell incinerator cycles while you are still inside."
+    }
+  ],
+  "goal_extra": [],
+  "disabled_core": []
+}

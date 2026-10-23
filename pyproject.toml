@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rescue"
+version = "0.1.0"
+description = "Data-driven escape scenarios for a shape-shifting monster: LLM generation, state-graph compilation and A* validation."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6",
+    "jsonschema>=4",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=2.2"]
+dev = ["pytest>=8", "anthropic>=2.2"]
+
+[project.scripts]
+rescue = "rescue.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rescue*"]
+
+[tool.setuptools.package-data]
+rescue = ["library/*.yaml", "library/examples/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: calls the real Anthropic API (needs ANTHROPIC_API_KEY and RESCUE_LIVE_TESTS=1)"]

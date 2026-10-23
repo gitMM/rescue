@@ -1,0 +1,31 @@
+{
+  "id": "tiny_cell",
+  "title": "Tiny Cell",
+  "premise": "A three-room smoke test: grab the keycard, open the door, walk out.",
+  "design_notes": "Optimal: take keycard, keycard through the cell door, walk to the yard (3 turns).",
+  "turn_limit": 12,
+  "monster": {"start_room": "cell", "energy": 1, "max_energy": 3},
+  "security": {"max_alarm": 3, "revoke_badges_at": 2, "seal_vents_at": 2, "purge_turns": 2},
+  "rooms": [
+    {"id": "cell", "name": "Cell", "zone": 0, "exit": false, "description": "A bare cell."},
+    {"id": "hall", "name": "Hall", "zone": 1, "exit": false, "description": "A corridor."},
+    {"id": "yard", "name": "Yard", "zone": 2, "exit": true, "description": "Outside."}
+  ],
+  "doors": [
+    {"id": "d_cell", "name": "cell door", "a": "cell", "b": "hall", "locked": true, "clearance": 1},
+    {"id": "d_yard", "name": "yard door", "a": "hall", "b": "yard", "locked": false, "clearance": 0}
+  ],
+  "vents": [],
+  "cameras": [],
+  "terminals": [],
+  "npcs": [],
+  "items": [
+    {"id": "card", "name": "a dropped keycard", "kind": "keycard", "clearance": 1, "room": "cell"}
+  ],
+  "vars": [],
+  "actions": [],
+  "rules": [],
+  "losses": [],
+  "goal_extra": [],
+  "disabled_core": []
+}

@@ -1,0 +1,353 @@
+# Core rules of the game: the monster's abilities, how the facility reacts,
+# and how you lose. Everything here is data in the statement language
+# described in rescue/dsl.py. Scenarios add their own actions, rules and
+# losses in exactly the same format.
+#
+# Binding sources: rooms, doors, vents, cameras, terminals, npcs, items,
+# passages (every door and vent in both directions, with fields id, kind
+# [door|vent], via, via_name, from, from_name, to, to_name, clearance), or
+# a list field of an earlier binding (e.g. "n.carries").
+# Always-available placeholders: {monster.*}, {security.*}, {turn_limit}.
+
+actions:
+  # ---------------------------------------------------------------- moving
+  - id: walk
+    ability: move
+    bind: [{name: p, from: passages}]
+    where: ["{p.kind} == door"]
+    pre:
+      - "monster.loc == {p.from}"
+      - "door.{p.via}.locked == false"
+      - "monster.form != liquid"
+    eff: ["monster.loc = {p.to}"]
+    text: "Walk from {p.from_name} to {p.to_name}."
+
+  - id: wait
+    ability: move
+    bind: []
+    where: []
+    pre: []
+    eff: []
+    text: "Hold still and let a turn pass."
+
+  - id: rest
+    ability: move
+    bind: []
+    where: []
+    pre: ["here.observed == false", "monster.energy < {monster.max_energy}"]
+    eff: ["monster.energy += 1"]
+    text: "Lie still where nobody is watching and recover energy."
+
+  - id: revert
+    ability: move
+    bind: []
+    where: []
+    pre: ["monster.form != self"]
+    eff: ["monster.form = self"]
+    text: "Return to your true form."
+
+  - id: take
+    ability: move
+    bind: [{name: i, from: items}]
+    where: ["{i.room} != none"]
+    pre:
+      - "monster.loc == {i.room}"
+      - "has.{i.id} == false"
+      - "monster.form != liquid"
+    eff: ["has.{i.id} = true"]
+    text: "Pick up {i.name}."
+
+  # -------------------------------------------------------------- keycards
+  - id: keycard
+    ability: keycard
+    bind: [{name: p, from: passages}, {name: k, from: items}]
+    where:
+      - "{p.kind} == door"
+      - "{k.kind} == keycard"
+      - "{p.clearance} > 0"
+      - "{k.clearance} >= {p.clearance}"
+    pre:
+      - "monster.loc == {p.from}"
+      - "door.{p.via}.locked == true"
+      - "has.{k.id} == true"
+      - "monster.form != liquid"
+    eff: ["monster.loc = {p.to}"]
+    text: "Swipe {k.name} and slip from {p.from_name} into {p.to_name}."
+
+  # ------------------------------------------------------------ liquid body
+  - id: liquefy
+    ability: liquid
+    bind: []
+    where: []
+    pre: ["monster.form != liquid", "monster.energy >= 1"]
+    eff: ["monster.form = liquid", "monster.energy -= 1"]
+    text: "Collapse into a thin liquid mass."
+
+  - id: crawl
+    ability: liquid
+    bind: [{name: p, from: passages}]
+    where: ["{p.kind} == vent"]
+    pre:
+      - "monster.loc == {p.from}"
+      - "monster.form == liquid"
+      - "vent.{p.via}.sealed == false"
+    eff: ["monster.loc = {p.to}"]
+    text: "Ooze through {p.via_name} from {p.from_name} to {p.to_name}."
+
+  # ----------------------------------------------------- absorbing & combat
+  - id: absorb
+    ability: absorb
+    bind: [{name: n, from: npcs}]
+    where: []
+    pre:
+      - "npc.{n.id}.loc == monster.loc"
+      - "npc.{n.id}.status == normal || npc.{n.id}.status == unconscious"
+    eff:
+      - if: ["npc.{n.id}.status == normal", "here.witnesses >= 2 || here.camera == true"]
+        then: ["alarm += 2"]
+        else: []
+      - if: ["npc.{n.id}.status == unconscious", "here.witnesses >= 1 || here.camera == true"]
+        then: ["alarm += 2"]
+        else: []
+      - "npc.{n.id}.status = absorbed"
+      - "has.{n.carries} = true"
+      - "has.{n.knows} = true"
+      - "monster.energy += 2"
+    text: "Engulf {n.name} and absorb their body, memories and belongings."
+
+  - id: subdue
+    ability: subdue
+    bind: [{name: n, from: npcs}]
+    where: ["{n.armed} == false"]
+    pre:
+      - "npc.{n.id}.loc == monster.loc"
+      - "npc.{n.id}.status == normal"
+      - "monster.form != liquid"
+    eff:
+      - if: ["here.witnesses >= 2 || here.camera == true"]
+        then: ["alarm += 1"]
+        else: []
+      - "npc.{n.id}.status = unconscious"
+      - "npc.{n.id}.down_at = monster.loc"
+      - "has.{n.carries} = true"
+    text: "Knock {n.name} out cold and take what they carry."
+
+  # -------------------------------------------------------------- disguise
+  - id: mimic
+    ability: disguise
+    bind: [{name: n, from: npcs}]
+    where: []
+    pre:
+      - "npc.{n.id}.status == absorbed"
+      - "monster.form != {n.id}"
+      - "monster.energy >= 1"
+    eff: ["monster.form = {n.id}", "monster.energy -= 1"]
+    text: "Reshape yourself into a perfect copy of {n.name}."
+
+  - id: swipe
+    ability: disguise
+    bind: [{name: p, from: passages}, {name: n, from: npcs}]
+    where:
+      - "{p.kind} == door"
+      - "{p.clearance} > 0"
+      - "{n.clearance} >= {p.clearance}"
+    pre:
+      - "monster.loc == {p.from}"
+      - "door.{p.via}.locked == true"
+      - "monster.form == {n.id}"
+      - "alarm < {security.revoke_badges_at}"
+    eff: ["monster.loc = {p.to}"]
+    text: "As {n.name}, badge through from {p.from_name} to {p.to_name}."
+
+  # --------------------------------------------------------------- hacking
+  - id: hack
+    ability: hack
+    bind: [{name: t, from: terminals}]
+    where: []
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == false"
+      - "monster.energy >= {t.security}"
+    eff: ["term.{t.id}.hacked = true", "monster.energy -= {t.security}", "alarm += 1"]
+    text: "Push tendrils into {t.name} and brute-force it (intrusion detected)."
+
+  - id: login
+    ability: hack
+    bind: [{name: t, from: terminals}]
+    where: ["{t.password} != none"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == false"
+      - "has.{t.password} == true"
+    eff: ["term.{t.id}.hacked = true"]
+    text: "Log into {t.name} with stolen credentials."
+
+  - id: unlock
+    ability: hack
+    bind: [{name: t, from: terminals}, {name: d, from: doors}]
+    where: ["{d.id} in {t.controls}"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == true"
+      - "door.{d.id}.locked == true"
+    eff: ["door.{d.id}.locked = false"]
+    text: "From {t.name}, release the lock on {d.name}."
+
+  - id: loop_camera
+    ability: hack
+    bind: [{name: t, from: terminals}, {name: c, from: cameras}]
+    where: ["{c.id} in {t.controls}"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == true"
+      - "cam.{c.id}.active == true"
+    eff: ["cam.{c.id}.active = false"]
+    text: "From {t.name}, loop the feed of {c.name}."
+
+  - id: unseal_vent
+    ability: hack
+    bind: [{name: t, from: terminals}, {name: v, from: vents}]
+    where: ["{v.id} in {t.controls}"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == true"
+      - "vent.{v.id}.sealed == true"
+    eff: ["vent.{v.id}.sealed = false"]
+    text: "From {t.name}, open the shutters of {v.name}."
+
+  - id: reset_alarm
+    ability: hack
+    bind: [{name: t, from: terminals}]
+    where: ["{t.alarm_control} == true"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == true"
+      - "alarm >= 1"
+      - "alarm < {security.max_alarm}"
+    eff: ["alarm -= 1"]
+    text: "From {t.name}, file the alerts as sensor faults."
+
+  # -------------------------------------------------- phones & social tricks
+  - id: phish
+    ability: phish
+    bind: [{name: t, from: terminals}, {name: n, from: npcs}]
+    where: ["{n.phone} == true"]
+    pre:
+      - "monster.loc == {t.room}"
+      - "monster.form != liquid"
+      - "term.{t.id}.hacked == true"
+      - "npc.{n.id}.status == normal"
+    eff: ["has.{n.knows} = true"]
+    text: "From {t.name}, push a fake IT prompt to {n.name}'s phone and capture what they know."
+
+  - id: con_open
+    ability: con
+    bind: [{name: p, from: passages}, {name: n, from: npcs}]
+    where: ["{p.kind} == door", "{n.clearance} >= {p.clearance}"]
+    pre:
+      - "monster.loc == {p.from}"
+      - "npc.{n.id}.loc == {p.from}"
+      - "npc.{n.id}.status == normal"
+      - "door.{p.via}.locked == true"
+      - "monster.form != self"
+      - "monster.form != liquid"
+      - "monster.form != {n.id}"
+    eff: ["door.{p.via}.locked = false"]
+    text: "Pose as a colleague who forgot their badge and talk {n.name} into opening {p.via_name}."
+
+  - id: con_item
+    ability: con
+    bind: [{name: n, from: npcs}, {name: b, from: npcs}]
+    where: ["{b.clearance} > {n.clearance}"]
+    pre:
+      - "monster.form == {b.id}"
+      - "npc.{n.id}.loc == monster.loc"
+      - "npc.{n.id}.status == normal"
+    eff: ["has.{n.carries} = true"]
+    text: "As {b.name}, order {n.name} to hand over what they carry."
+
+# World reactions, applied in order after every turn (after the monster's
+# action and after the clock advances and everyone moves along their patrol).
+rules:
+  - id: seen_true_form
+    bind: []
+    where: []
+    when:
+      - "monster.form == self"
+      - "here.observed == true"
+      - "monster.loc != {monster.start_room}"
+    then: ["alarm += 1"]
+    text: "Someone sees the creature in its true form."
+
+  - id: seen_puddle
+    bind: []
+    where: []
+    when:
+      - "monster.form == liquid"
+      - "here.witnesses >= 1"
+      - "monster.loc != {monster.start_room}"
+    then: ["alarm += 1"]
+    text: "Someone notices a puddle that moves."
+
+  - id: out_of_place
+    bind: [{name: n, from: npcs}]
+    where: []
+    when:
+      - "monster.form == {n.id}"
+      - "here.zone > {n.clearance}"
+      - "here.observed == true"
+    then: ["alarm += 1"]
+    text: "{n.name} is spotted somewhere they have no clearance to be."
+
+  - id: body_found
+    bind: [{name: n, from: npcs}, {name: w, from: npcs}]
+    where: ["{n.id} != {w.id}"]
+    when:
+      - "npc.{n.id}.status == unconscious"
+      - "npc.{w.id}.status == normal"
+      - "npc.{w.id}.loc == npc.{n.id}.down_at"
+    then: ["npc.{n.id}.status = found", "alarm += 2"]
+    text: "{w.name} finds {n.name} unconscious and raises the alarm."
+
+  - id: vents_sealed
+    bind: [{name: v, from: vents}]
+    where: ["{v.sealable} == true"]
+    when: ["alarm >= {security.seal_vents_at}", "vent.{v.id}.sealed == false"]
+    then: ["vent.{v.id}.sealed = true"]
+    text: "Emergency shutters slam across {v.name}."
+
+  - id: lockdown_countdown
+    bind: []
+    where: []
+    when: ["alarm >= {security.max_alarm}"]
+    then: ["lockdown += 1"]
+    text: "Full lockdown: the purge countdown advances."
+
+# Checked after the world reacts, in order. The first one that holds ends
+# the game. Reaching an exit is checked before the world reacts, so
+# stepping outside always wins.
+losses:
+  - id: shot
+    when:
+      - "monster.form == self"
+      - "here.guards >= 1"
+      - "monster.loc != {monster.start_room}"
+    text: "An armed guard sees the creature and fires an incendiary round."
+
+  - id: captured
+    when: ["alarm >= {security.max_alarm}", "here.guards >= 1"]
+    text: "Full lockdown: the guards corner you and pump containment foam."
+
+  - id: purged
+    when: ["lockdown >= {security.purge_turns}"]
+    text: "The purge protocol fires and every corridor floods with fire."
+
+  - id: out_of_time
+    when: ["turn >= {turn_limit}"]
+    text: "The containment team arrives at dawn; the window has closed."
