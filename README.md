@@ -31,7 +31,29 @@ python -m rescue generate --setting "a deep-sea habitat" --difficulty hard
 
 python -m rescue prompt            # the exact system prompt the generator uses
 python -m rescue schema            # the scenario JSON schema
+python -m rescue play scenarios/halcyon_tower.json wait wait wait 'absorb(dr_vasquez)'
+                                   # step through a line of play; lists what is possible next
 ```
+
+## Generating scenarios inside Claude Code
+
+The repo ships a project skill,
+`.claude/skills/generate-scenario/SKILL.md`, so you can design scenarios in
+any Claude Code session opened on this repo (terminal, desktop, IDE or a cloud
+session) without an API key or any SDK code:
+
+```
+/generate-scenario a deep-sea habitat, hard
+```
+
+The session reads the design guide (`python -m rescue prompt`) and writes
+`scenarios/<id>.json`. It then validates the file, uses `python -m rescue play`
+to test the routes it intended, and keeps fixing until the scenario is
+accepted. You can steer it as it goes. Scenarios saved in `scenarios/` are
+re-validated by the test suite, so they stay accepted as the core rules change.
+`scenarios/halcyon_tower.json` was made this way.
+
+For unattended batches, use `python -m rescue generate` (Anthropic API) instead.
 
 Generated scenarios land in `scenarios/generated/accepted/` (or `rejected/`).
 Each one is saved with its validation report, and `logs/` holds every round's

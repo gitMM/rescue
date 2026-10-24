@@ -36,3 +36,19 @@ def test_generate_dry_run(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "site_theta after 2 round(s): accepted" in out
     assert (tmp_path / "accepted" / "site_theta_s0.json").exists()
+
+
+def test_play_walks_a_line_and_explains_failures(capsys):
+    win = ["take(card)", "keycard(d_cell:cell>hall,card)", "walk(d_yard:hall>yard)"]
+    assert main(["play", str(TINY_PATH), *win]) == 0
+    assert "outcome: win" in capsys.readouterr().out
+
+    assert main(["play", str(TINY_PATH), "take(card)"]) == 0
+    out = capsys.readouterr().out
+    assert "available now" in out and "keycard(d_cell:cell>hall,card)" in out
+
+    assert main(["play", str(TINY_PATH), "walk(d_cell:cell>hall)"]) == 1
+    assert "failing: door.d_cell.locked == false" in capsys.readouterr().out
+
+    assert main(["play", str(TINY_PATH), "tak(card)"]) == 1
+    assert "did you mean: take(card)" in capsys.readouterr().out

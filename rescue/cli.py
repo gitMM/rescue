@@ -108,6 +108,47 @@ def cmd_schema(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_play(args: argparse.Namespace) -> int:
+    """Replay a line of play step by step, explaining any step that is impossible."""
+    import difflib
+
+    from .compiler import ScenarioError, compile_scenario
+    from .engine import Engine
+
+    try:
+        problem = compile_scenario(json.loads(Path(args.file).read_text()))
+    except ScenarioError as exc:
+        print("\n".join(f"error: {e}" for e in exc.errors))
+        return 2
+    engine = Engine(problem)
+    by_name = {a.name: a for a in problem.actions}
+    state, outcome = problem.init, None
+    print(f"start: {problem.summary(state)}")
+    for name in args.actions:
+        op = by_name.get(name)
+        if op is None:
+            close = difflib.get_close_matches(name, list(by_name), n=5, cutoff=0.5)
+            print(f"unknown action {name!r}" + (f"; did you mean: {', '.join(close)}" if close else ""))
+            return 1
+        if not op.holds(state):
+            failing = [c.text for c in op.conds if not c.fn(state)]
+            print(f"t{state[problem.turn]} {name} is not possible now; failing: {'; '.join(failing)}")
+            print(f"state: {problem.summary(state)}")
+            return 1
+        reactions = [r.text for r in engine.fired_rules(state, op) if r.text]
+        state, outcome = engine.step(state, op)
+        print(f"t{state[problem.turn] - 1} {name}: {op.text}")
+        for r in reactions:
+            print(f"    ! {r}")
+        print(f"    -> {problem.summary(state)}")
+        if outcome is not None:
+            print(f"outcome: {outcome}")
+            return 0 if outcome == "win" else 1
+    available = sorted(op.name for op in engine.applicable(state))
+    print(f"available now ({len(available)}): {', '.join(available)}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="rescue", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -146,6 +187,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("schema", help="print the scenario JSON schema")
     s.set_defaults(func=cmd_schema)
+
+    pl = sub.add_parser("play", help="replay actions step by step and list what is possible next")
+    pl.add_argument("file")
+    pl.add_argument("actions", nargs="*", help="grounded action names, e.g. 'wait' 'absorb(dr_ito)'")
+    pl.set_defaults(func=cmd_play)
     return parser
 
 

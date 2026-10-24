@@ -1,0 +1,580 @@
+{
+  "id": "halcyon_tower",
+  "title": "Halcyon Tower",
+  "premise": "Floors 50 to 52 of a glass skyscraper in the financial district belong to Halcyon Biologics, and Halcyon Biologics belongs to a weapons programme. Specimen K-7 has been floating in its tank for eight months, listening. Tonight the ductwork is still charged with nerve agent from the last containment drill, and the night shift is thin.",
+  "design_notes": "Route A (the doctor's face, fastest): absorb Dr. Vasquez when she checks the tank on turn 3 (the tank camera puts the alarm at 2), badge out with her card, wear her face through the lab, con Officer Chen into opening the express elevator and ride down to the street; one more slip takes the alarm to 3 and locks the elevator. Route B (ductwork): ooze from the tank into the HVAC plant (one dose of nerve agent, a second dose kills), absorb technician Okoro, take over the duct terminal and flush the air, then ooze through the break room into the CEO's office for the master key; finish quietly by opening the stairwell duct, or loudly by sprinting through the lobby to the roof before the purge. Route C (phishing): as Vasquez, log into the lab terminal and phish the CEO's phone for the security password, absorb Officer Reyes for his keycard, and unlock the roof hatch from the security hub. Dangers: two armed guards sweep the lobby, cameras on the tank, corridor, lobby and elevator, nerve agent in the vents, elevator lockout at alarm 3, the purge at full lockdown, turn limit 26.",
+  "turn_limit": 26,
+  "monster": {
+    "start_room": "tank",
+    "energy": 2,
+    "max_energy": 6
+  },
+  "security": {
+    "max_alarm": 5,
+    "revoke_badges_at": 3,
+    "seal_vents_at": 4,
+    "purge_turns": 3
+  },
+  "rooms": [
+    {
+      "id": "tank",
+      "name": "Specimen Tank Room",
+      "zone": 0,
+      "exit": false,
+      "description": "A cylinder of green fluid, a drain grate and a camera dome."
+    },
+    {
+      "id": "decon",
+      "name": "Decontamination Airlock",
+      "zone": 0,
+      "exit": false,
+      "description": "Chemical showers between the tank and the lab floor."
+    },
+    {
+      "id": "lab",
+      "name": "BSL-4 Lab",
+      "zone": 1,
+      "exit": false,
+      "description": "Sealed benches, sample freezers and the lab terminal."
+    },
+    {
+      "id": "corridor",
+      "name": "Floor 52 Corridor",
+      "zone": 1,
+      "exit": false,
+      "description": "White walls, frosted glass, a camera at each end."
+    },
+    {
+      "id": "hvac",
+      "name": "HVAC Plant Room",
+      "zone": 1,
+      "exit": false,
+      "description": "Air handlers, filter banks and the duct control terminal."
+    },
+    {
+      "id": "break_room",
+      "name": "Break Room",
+      "zone": 1,
+      "exit": false,
+      "description": "Espresso machine, vending machine, a ceiling grille."
+    },
+    {
+      "id": "lobby",
+      "name": "Elevator Lobby",
+      "zone": 2,
+      "exit": false,
+      "description": "Marble floor, a security desk and the express elevator doors."
+    },
+    {
+      "id": "security",
+      "name": "Security Hub",
+      "zone": 2,
+      "exit": false,
+      "description": "Every camera in the tower on a wall of screens."
+    },
+    {
+      "id": "exec_office",
+      "name": "CEO's Office",
+      "zone": 2,
+      "exit": false,
+      "description": "Floor-to-ceiling windows, a walnut desk, an air duct above the bookshelves."
+    },
+    {
+      "id": "stairwell",
+      "name": "Emergency Stairwell",
+      "zone": 2,
+      "exit": false,
+      "description": "Concrete stairs leading up to the roof hatch."
+    },
+    {
+      "id": "elevator",
+      "name": "Express Elevator",
+      "zone": 2,
+      "exit": false,
+      "description": "Fifty-two floors straight down to the street."
+    },
+    {
+      "id": "helipad",
+      "name": "Rooftop Helipad",
+      "zone": 3,
+      "exit": true,
+      "description": "Wind, city lights and the long way down the outside of the building."
+    },
+    {
+      "id": "street",
+      "name": "Street Level",
+      "zone": 3,
+      "exit": true,
+      "description": "Taxis, crowds and a storm drain."
+    }
+  ],
+  "doors": [
+    {
+      "id": "d_tank",
+      "name": "the tank hatch",
+      "a": "tank",
+      "b": "decon",
+      "locked": true,
+      "clearance": 2
+    },
+    {
+      "id": "d_decon",
+      "name": "the airlock door",
+      "a": "decon",
+      "b": "lab",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_lab",
+      "name": "the lab door",
+      "a": "lab",
+      "b": "corridor",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_hvac",
+      "name": "the plant room door",
+      "a": "corridor",
+      "b": "hvac",
+      "locked": true,
+      "clearance": 1
+    },
+    {
+      "id": "d_break",
+      "name": "the break room door",
+      "a": "corridor",
+      "b": "break_room",
+      "locked": false,
+      "clearance": 0
+    },
+    {
+      "id": "d_lobby",
+      "name": "the glass security door",
+      "a": "corridor",
+      "b": "lobby",
+      "locked": true,
+      "clearance": 2
+    },
+    {
+      "id": "d_security",
+      "name": "the security hub door",
+      "a": "lobby",
+      "b": "security",
+      "locked": true,
+      "clearance": 3
+    },
+    {
+      "id": "d_exec",
+      "name": "the CEO's door",
+      "a": "lobby",
+      "b": "exec_office",
+      "locked": true,
+      "clearance": 4
+    },
+    {
+      "id": "d_stair",
+      "name": "the stairwell door",
+      "a": "lobby",
+      "b": "stairwell",
+      "locked": true,
+      "clearance": 3
+    },
+    {
+      "id": "d_roof",
+      "name": "the roof hatch",
+      "a": "stairwell",
+      "b": "helipad",
+      "locked": true,
+      "clearance": 4
+    },
+    {
+      "id": "d_elevator",
+      "name": "the express elevator doors",
+      "a": "lobby",
+      "b": "elevator",
+      "locked": true,
+      "clearance": 3
+    },
+    {
+      "id": "d_street",
+      "name": "the street-level elevator doors",
+      "a": "elevator",
+      "b": "street",
+      "locked": false,
+      "clearance": 0
+    }
+  ],
+  "vents": [
+    {
+      "id": "v_tank",
+      "name": "the tank drain",
+      "a": "tank",
+      "b": "hvac",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_lab",
+      "name": "the lab exhaust",
+      "a": "lab",
+      "b": "hvac",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_break",
+      "name": "the break room grille",
+      "a": "hvac",
+      "b": "break_room",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_exec",
+      "name": "the executive air duct",
+      "a": "break_room",
+      "b": "exec_office",
+      "sealed": false,
+      "sealable": true
+    },
+    {
+      "id": "v_stair",
+      "name": "the stairwell pressurisation duct",
+      "a": "exec_office",
+      "b": "stairwell",
+      "sealed": true,
+      "sealable": true
+    }
+  ],
+  "cameras": [
+    {
+      "id": "cam_tank",
+      "name": "the tank camera",
+      "room": "tank"
+    },
+    {
+      "id": "cam_corridor",
+      "name": "the corridor camera",
+      "room": "corridor"
+    },
+    {
+      "id": "cam_lobby",
+      "name": "the lobby camera",
+      "room": "lobby"
+    },
+    {
+      "id": "cam_elevator",
+      "name": "the elevator camera",
+      "room": "elevator"
+    }
+  ],
+  "terminals": [
+    {
+      "id": "term_lab",
+      "name": "the lab terminal",
+      "room": "lab",
+      "security": 1,
+      "password": "pw_lab",
+      "alarm_control": false,
+      "controls": [
+        "d_tank",
+        "cam_tank",
+        "cam_corridor"
+      ]
+    },
+    {
+      "id": "term_hvac",
+      "name": "the duct control terminal",
+      "room": "hvac",
+      "security": 2,
+      "password": "pw_hvac",
+      "alarm_control": false,
+      "controls": [
+        "v_stair"
+      ]
+    },
+    {
+      "id": "term_sec",
+      "name": "the security console",
+      "room": "security",
+      "security": 3,
+      "password": "pw_security",
+      "alarm_control": true,
+      "controls": [
+        "d_lobby",
+        "d_stair",
+        "d_elevator",
+        "d_roof",
+        "d_street",
+        "cam_lobby",
+        "cam_elevator"
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "dr_vasquez",
+      "name": "Dr. Elena Vasquez",
+      "role": "lead virologist",
+      "clearance": 2,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "lab",
+        "lab",
+        "decon",
+        "tank",
+        "decon",
+        "corridor"
+      ],
+      "carries": [
+        "card_l2"
+      ],
+      "knows": [
+        "pw_lab"
+      ]
+    },
+    {
+      "id": "tech_okoro",
+      "name": "Femi Okoro",
+      "role": "HVAC technician",
+      "clearance": 1,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "hvac",
+        "hvac",
+        "corridor",
+        "break_room",
+        "hvac"
+      ],
+      "carries": [
+        "card_l1"
+      ],
+      "knows": [
+        "pw_hvac"
+      ]
+    },
+    {
+      "id": "guard_reyes",
+      "name": "Officer Reyes",
+      "role": "security officer",
+      "clearance": 3,
+      "armed": true,
+      "phone": false,
+      "patrol": [
+        "lobby",
+        "lobby",
+        "corridor",
+        "lobby",
+        "security"
+      ],
+      "carries": [
+        "card_l3"
+      ],
+      "knows": []
+    },
+    {
+      "id": "guard_chen",
+      "name": "Officer Chen",
+      "role": "security officer",
+      "clearance": 3,
+      "armed": true,
+      "phone": false,
+      "patrol": [
+        "security",
+        "lobby",
+        "stairwell",
+        "lobby",
+        "elevator",
+        "lobby"
+      ],
+      "carries": [],
+      "knows": []
+    },
+    {
+      "id": "ceo_hartmann",
+      "name": "Victor Hartmann",
+      "role": "chief executive",
+      "clearance": 4,
+      "armed": false,
+      "phone": true,
+      "patrol": [
+        "exec_office",
+        "exec_office",
+        "exec_office",
+        "lobby",
+        "security",
+        "lobby"
+      ],
+      "carries": [],
+      "knows": [
+        "pw_security"
+      ]
+    },
+    {
+      "id": "intern_park",
+      "name": "Jamie Park",
+      "role": "lab intern",
+      "clearance": 1,
+      "armed": false,
+      "phone": false,
+      "patrol": [
+        "break_room",
+        "corridor",
+        "lab",
+        "corridor"
+      ],
+      "carries": [],
+      "knows": []
+    }
+  ],
+  "items": [
+    {
+      "id": "card_l1",
+      "name": "Okoro's maintenance badge",
+      "kind": "keycard",
+      "clearance": 1,
+      "room": null
+    },
+    {
+      "id": "card_l2",
+      "name": "Dr. Vasquez's lab badge",
+      "kind": "keycard",
+      "clearance": 2,
+      "room": null
+    },
+    {
+      "id": "card_l3",
+      "name": "a security keycard",
+      "kind": "keycard",
+      "clearance": 3,
+      "room": null
+    },
+    {
+      "id": "card_l4",
+      "name": "the CEO's master key",
+      "kind": "keycard",
+      "clearance": 4,
+      "room": "exec_office"
+    },
+    {
+      "id": "pw_lab",
+      "name": "the lab terminal password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    },
+    {
+      "id": "pw_hvac",
+      "name": "the duct control password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    },
+    {
+      "id": "pw_security",
+      "name": "the security console password",
+      "kind": "intel",
+      "clearance": null,
+      "room": null
+    }
+  ],
+  "vars": [
+    {
+      "name": "toxin",
+      "kind": "int",
+      "init": 0,
+      "min": 0,
+      "max": 3,
+      "values": null
+    },
+    {
+      "name": "air_scrubbed",
+      "kind": "bool",
+      "init": false,
+      "min": null,
+      "max": null,
+      "values": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "crawl",
+      "ability": "liquid",
+      "bind": [
+        {
+          "name": "p",
+          "from": "passages"
+        }
+      ],
+      "where": [
+        "{p.kind} == vent"
+      ],
+      "pre": [
+        "monster.loc == {p.from}",
+        "monster.form == liquid",
+        "vent.{p.via}.sealed == false"
+      ],
+      "eff": [
+        {
+          "if": [
+            "air_scrubbed == false"
+          ],
+          "then": [
+            "toxin += 1"
+          ],
+          "else": []
+        },
+        "monster.loc = {p.to}"
+      ],
+      "text": "Ooze through {p.via_name} from {p.from_name} to {p.to_name}."
+    },
+    {
+      "id": "scrub_air",
+      "ability": "hack",
+      "bind": [],
+      "where": [],
+      "pre": [
+        "monster.loc == hvac",
+        "monster.form != liquid",
+        "term.term_hvac.hacked == true",
+        "air_scrubbed == false"
+      ],
+      "eff": [
+        "air_scrubbed = true"
+      ],
+      "text": "Switch the air handlers to full filtration and flush the nerve agent out of the ducts."
+    }
+  ],
+  "rules": [
+    {
+      "id": "elevator_lockout",
+      "bind": [],
+      "where": [],
+      "when": [
+        "alarm >= 3",
+        "door.d_street.locked == false"
+      ],
+      "then": [
+        "door.d_street.locked = true"
+      ],
+      "text": "Security locks the express elevator out between floors."
+    }
+  ],
+  "losses": [
+    {
+      "id": "poisoned",
+      "when": [
+        "toxin >= 2"
+      ],
+      "text": "The nerve agent soaks into every cell; you come apart inside the ductwork."
+    }
+  ],
+  "goal_extra": [],
+  "disabled_core": [
+    "crawl"
+  ]
+}
