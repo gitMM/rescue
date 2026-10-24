@@ -33,7 +33,40 @@ python -m rescue prompt            # the exact system prompt the generator uses
 python -m rescue schema            # the scenario JSON schema
 python -m rescue play scenarios/halcyon_tower.json wait wait wait 'absorb(dr_vasquez)'
                                    # step through a line of play; lists what is possible next
+python -m rescue game              # play a scenario yourself as a text game
 ```
+
+## Playing a scenario
+
+`python -m rescue game [file]` turns any scenario into an interactive text
+game. With no file it lets you choose from `scenarios/` (including generated
+ones) and the bundled examples. It runs on the same engine as the
+validator, so patrols, cameras, guards, set pieces and losses all behave
+the way A\* sees them.
+
+Each turn shows:
+
+- the room, your form, energy, alarm and the turn
+- who is there and who is about to walk in
+- the cameras, ways out, terminals and items
+- a numbered menu of every action possible right now
+
+Pick an action by number, by its name (`absorb(dr_ito)`) or by a few words
+of it (`absorb ito`). If you type something that is not possible, the game
+says why, for example "the cell door is locked". Other commands:
+
+| Command | What it does |
+|---------|--------------|
+| `look` | describe the room again |
+| `map` | every room and how they connect |
+| `people` | everyone's next few patrol stops, and what they carry and know |
+| `hint` | the next move of a fastest escape from here, or a warning that there is no way out any more |
+| `undo`, `restart` | take back moves, or start again |
+| `help`, `quit` | list the commands, or leave the game |
+
+Piped input is echoed, so `printf 'wait\nhint\n' | python -m rescue game
+scenarios/halcyon_tower.json` gives a readable transcript. Set `--no-color`
+or `NO_COLOR` for plain output.
 
 ## Generating scenarios inside Claude Code
 
@@ -196,7 +229,7 @@ and incinerated all reachable.
 
 ## Tests
 
-`python -m pytest` runs about 90 tests in about 20 seconds, with no network
+`python -m pytest` runs about 100 tests in about 30 seconds, with no network
 access. They cover:
 
 - the statement language
@@ -209,6 +242,7 @@ access. They cover:
 - every gate and diagnostic
 - the generate-and-repair loop with a scripted fake LLM, plus checks on request
   shape and reply parsing with a stubbed Anthropic client
+- the text game: a scripted win, explanations, hints, undo and the scenario picker
 - the command line
 
 A live API test is skipped unless `RESCUE_LIVE_TESTS=1` is set.

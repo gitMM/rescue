@@ -54,10 +54,11 @@ def astar(
     engine: Engine | None = None,
     allowed: frozenset[str] | None = None,
     max_expansions: int = 200_000,
+    start: tuple | None = None,
 ) -> SearchResult:
     engine = engine or Engine(problem)
     h, tl, turn_i = problem.h, problem.turn_limit, problem.turn
-    start = problem.init
+    start = problem.init if start is None else start
     parent: dict[tuple, tuple[tuple, Operator] | None] = {start: None}
     counter = itertools.count()
     h0 = h(start)
