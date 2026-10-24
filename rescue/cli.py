@@ -149,6 +149,43 @@ def cmd_play(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_game(args: argparse.Namespace) -> int:
+    """Play a scenario interactively; piped input is echoed so transcripts read like a session."""
+    import os
+    import shutil
+
+    from .compiler import ScenarioError, compile_scenario
+    from .game import Game, choose_scenario, find_scenarios
+
+    interactive = sys.stdin.isatty()
+    if interactive:
+        try:
+            import readline  # noqa: F401 - line editing and history for input()
+        except ImportError:
+            pass
+
+    def read(prompt: str) -> str:
+        line = input(prompt)
+        if not interactive:
+            print(line)
+        return line
+
+    path = Path(args.file) if args.file else choose_scenario(find_scenarios(), read)
+    if path is None:
+        return 1
+    try:
+        problem = compile_scenario(json.loads(path.read_text()))
+    except (OSError, ValueError) as exc:
+        print(f"cannot read {path}: {exc}")
+        return 2
+    except ScenarioError as exc:
+        print("\n".join(f"error: {e}" for e in exc.errors))
+        return 2
+    color = sys.stdout.isatty() and not args.no_color and "NO_COLOR" not in os.environ
+    width = max(40, min(100, shutil.get_terminal_size().columns - 2))
+    return Game(problem, width=width, color=color).run(read)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="rescue", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -192,6 +229,11 @@ def build_parser() -> argparse.ArgumentParser:
     pl.add_argument("file")
     pl.add_argument("actions", nargs="*", help="grounded action names, e.g. 'wait' 'absorb(dr_ito)'")
     pl.set_defaults(func=cmd_play)
+
+    gm = sub.add_parser("game", help="play a scenario as an interactive text game")
+    gm.add_argument("file", nargs="?", help="scenario JSON (default: choose from scenarios/ and the bundled examples)")
+    gm.add_argument("--no-color", action="store_true", help="plain output without ANSI colours")
+    gm.set_defaults(func=cmd_game)
     return parser
 
 
