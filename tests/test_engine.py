@@ -119,7 +119,7 @@ def test_absorbing_takes_belongings_and_unlocks_mimicry(theta):
 def test_replay_reports_impossible_steps(tiny):
     p = compile_scenario(tiny)
     _, _, errors = Engine(p).replay(["walk(d_yard:hall>yard)"])
-    assert errors and "not possible" in errors[0]
+    assert errors and "not possible" in errors[0] and "failing: monster.loc == hall" in errors[0]
     _, _, errors = Engine(p).replay(["fly"])
     assert errors and "unknown action" in errors[0]
 

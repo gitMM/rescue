@@ -107,15 +107,21 @@ def astar(
     return SearchResult(None, [], expanded, generated, False, losses, pruned, closest)
 
 
+def narrate_step(engine: Engine, state: tuple, op: Operator) -> tuple[Step, tuple, str | None]:
+    """Apply ``op`` and describe it; returns the step, the next state and its outcome."""
+    p = engine.p
+    reactions = [r.text for r in engine.fired_rules(state, op) if r.text]
+    nxt, outcome = engine.step(state, op)
+    return Step(state[p.turn], op.name, op.ability, op.text, reactions, p.summary(nxt)), nxt, outcome
+
+
 def narrate(problem: Problem, plan: list[Operator], engine: Engine | None = None) -> list[Step]:
     engine = engine or Engine(problem)
     steps: list[Step] = []
     state = problem.init
     for op in plan:
-        reactions = [r.text for r in engine.fired_rules(state, op) if r.text]
-        nxt, _ = engine.step(state, op)
-        steps.append(Step(state[problem.turn], op.name, op.ability, op.text, reactions, problem.summary(nxt)))
-        state = nxt
+        step, state, _ = narrate_step(engine, state, op)
+        steps.append(step)
     return steps
 
 

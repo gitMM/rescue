@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import sys
 from dataclasses import fields
 from pathlib import Path
 
+from .compiler import ScenarioError, compile_scenario
+from .engine import WIN, Engine
 from .library import example_paths
+from .solver import narrate_step
 from .validate import Gates, format_report, validate_scenario
 
 
@@ -110,11 +114,6 @@ def cmd_schema(_args: argparse.Namespace) -> int:
 
 def cmd_play(args: argparse.Namespace) -> int:
     """Replay a line of play step by step, explaining any step that is impossible."""
-    import difflib
-
-    from .compiler import ScenarioError, compile_scenario
-    from .engine import Engine
-
     try:
         problem = compile_scenario(json.loads(Path(args.file).read_text()))
     except ScenarioError as exc:
@@ -122,7 +121,7 @@ def cmd_play(args: argparse.Namespace) -> int:
         return 2
     engine = Engine(problem)
     by_name = {a.name: a for a in problem.actions}
-    state, outcome = problem.init, None
+    state = problem.init
     print(f"start: {problem.summary(state)}")
     for name in args.actions:
         op = by_name.get(name)
@@ -131,19 +130,17 @@ def cmd_play(args: argparse.Namespace) -> int:
             print(f"unknown action {name!r}" + (f"; did you mean: {', '.join(close)}" if close else ""))
             return 1
         if not op.holds(state):
-            failing = [c.text for c in op.conds if not c.fn(state)]
-            print(f"t{state[problem.turn]} {name} is not possible now; failing: {'; '.join(failing)}")
+            print(f"t{state[problem.turn]} {name} is not possible now; failing: {'; '.join(op.failing(state))}")
             print(f"state: {problem.summary(state)}")
             return 1
-        reactions = [r.text for r in engine.fired_rules(state, op) if r.text]
-        state, outcome = engine.step(state, op)
-        print(f"t{state[problem.turn] - 1} {name}: {op.text}")
-        for r in reactions:
+        step, state, outcome = narrate_step(engine, state, op)
+        print(f"t{step.turn} {name}: {step.text}")
+        for r in step.reactions:
             print(f"    ! {r}")
-        print(f"    -> {problem.summary(state)}")
+        print(f"    -> {step.after}")
         if outcome is not None:
             print(f"outcome: {outcome}")
-            return 0 if outcome == "win" else 1
+            return 0 if outcome == WIN else 1
     available = sorted(op.name for op in engine.applicable(state))
     print(f"available now ({len(available)}): {', '.join(available)}")
     return 0

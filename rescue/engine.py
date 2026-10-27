@@ -77,7 +77,7 @@ class Engine:
             if outcome is not None:
                 return state, outcome, [f"step {i}: game already ended ({outcome})"]
             if not op.holds(state):
-                return state, outcome, [f"step {i}: {name} is not possible in this state"]
+                return state, outcome, [f"step {i}: {name} is not possible in this state; failing: {'; '.join(op.failing(state))}"]
             state, outcome = self.step(state, op)
         return state, outcome, []
 

@@ -148,6 +148,10 @@ class Operator:
     def holds(self, state: Any) -> bool:
         return self.test(state)
 
+    def failing(self, state: Any) -> list[str]:
+        """The text of each precondition that does not hold in ``state``."""
+        return [c.text for c in self.conds if not c.fn(state)]
+
 
 @dataclass
 class Loss:

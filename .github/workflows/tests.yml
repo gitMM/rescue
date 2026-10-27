@@ -17,4 +17,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e '.[dev]'
       - run: python -m pytest -q
-      - run: python -m rescue validate --no-steps rescue/library/examples/*.json scenarios/*.json
+      - run: python -m rescue validate --no-steps
